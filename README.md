@@ -1,224 +1,115 @@
-# [App Name] Integration Documentation
+# Boilerplate Repository
 
 ## Overview
 
-[Description]
+Welcome to the Boilerplate Repository! This repository provides a robust starting point for your project, including essential functionalities for user authentication, email messaging, and payment processing. It also includes comprehensive API documentation and a detailed database design.
 
-## Folder Structure
+## Features
+
+- User Authentication (email, social login, magic link)
+- Email Messaging with default templates
+- Payment Processing (Stripe, Flutterwave, LemonSqueezy)
+- User and Organisation management
+- Administrative and content-related operations
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Folder Structure](#folder-structure)
+- [Scripts](#scripts)
+- [API Documentation](#api-documentation)
+- [Database Design](#database-design)
+- [Contributing](#contributing)
+
+## Installation
+
+To get started with this boilerplate, follow the instructions below:
+
+1. **Clone the repository**
 
 ```
-|--- src
-|    |--- controllers
-|    |--- database
-|    |--- interfaces
-|    |--- middlewares
-|    |--- routes
-|    |--- services
-|    |--- utils
-|    |--- server.ts
-|--- .env
-|--- app.ts
-|--- .gitignore
-|--- package.json
-|--- tsconfig.json
+   git clone https://github.com/your-username/boilerplate-repo.git
+   cd boilerplate-repo
+
 ```
 
-## Dependencies (Dev)
+2. **Install dependencies****
 
-- Node.js
-- TypeScript
-- Express
-- ts-node-dev
-- [Other dependencies]
-
-## Getting Started
-
-Before you begin, ensure you have the following installed on your machine:
-
-- [Node.js](https://nodejs.org/) (v14 or later)
-- [npm](https://www.npmjs.com/) (Node Package Manager, included with Node.js)
-- [Git](https://git-scm.com/)
-
-## Contribution Guide
-
-## Getting Started
-
-#### If you don't have git on your machine, [install it](https://docs.github.com/en/get-started/quickstart/set-up-git).
-
-## Fork this repository
-
-Fork this repository by clicking on the fork button on the top of this page.
-This will create a copy of this repository in your account.
-
-## Clone the repository
-
-<img align="right" width="300" src="https://firstcontributions.github.io/assets/Readme/clone.png" alt="clone this repository" />
-
-Now clone the forked repository to your machine. Go to your GitHub account, open the forked repository, click on the code button and then click the _copy to clipboard_ icon.
-
-Open a terminal and run the following git command:
-
-```bash
-git clone "url you just copied"
 ```
-
-where "url you just copied" (without the quotation marks) is the url to this repository (your fork of this project). See the previous steps to obtain the url.
-
-<img align="right" width="300" src="https://firstcontributions.github.io/assets/Readme/copy-to-clipboard.png" alt="copy URL to clipboard" />
-
-For example:
-
-```bash
-git clone git@github.com:this-is-you/first-contributions.git
-```
-
-where `this-is-you` is your GitHub username. Here you're copying the contents of the first-contributions repository on GitHub to your computer.
-
-## Create a branch
-
-Change to the repository directory on your computer (if you are not already there):
-
-```bash
-cd first-contributions
-```
-
-Now create a branch using the `git switch` command:
-
-```bash
-git switch -c your-new-branch-name
-```
-
-For example:
-
-```bash
-git switch -c add-alonzo-church
-```
-
-### Make Changes
-
-Make your changes to the codebase. Ensure your code follows the project's coding standards and guidelines.
-
-### Run Tests
-
-Run the existing tests to ensure your changes do not break anything. If you added new functionality, write corresponding tests.
-
-```sh
-npm run test
-```
-
-## commit those changes
-
-Now open `Contributors.md` file in a text editor, add your name to it. Don't add it at the beginning or end of the file. Put it anywhere in between. Now, save the file.
-
-<img align="right" width="450" src="https://firstcontributions.github.io/assets/Readme/git-status.png" alt="git status" />
-
-If you go to the project directory and execute the command `git status`, you'll see there are changes.
-
-Add those changes to the branch you just created using the `git add` command:
-
-## Push changes to GitHub
-
-Push your changes using the command `git push`:
-
-```bash
-git push -u origin your-branch-name
-```
-
-replacing `your-branch-name` with the name of the branch you created earlier.
-
-<details>
-<summary> <strong>If you get any errors while pushing, click here:</strong> </summary>
-
-- ### Authentication Error
-     <pre>remote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead.
-  remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information.
-  fatal: Authentication failed for 'https://github.com/<your-username>/first-contributions.git/'</pre>
-  Go to [GitHub's tutorial](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) on generating and configuring an SSH key to your account.
-
-</details>
-
-## Submit your changes for review into Staging
-
-If you go to your repository on GitHub, you'll see a `Compare & pull request` button. Click on that button.
-
-<img style="float: right;" src="https://firstcontributions.github.io/assets/Readme/compare-and-pull.png" alt="create a pull request" />
-
-Now submit the pull request.
-
-<img style="float: right;" src="https://firstcontributions.github.io/assets/Readme/submit-pull-request.png" alt="submit pull request" />
-
-Soon your changes will be merged into the staging branch of this project. You will get a notification email once the changes have been merged.
-
-## Setup Instructions
-
-### 1. Clone the Repository
-
-First, clone the repository to your local machine using Git.
-
-```sh
-git clone https://github.com/your-username/[app-name].git
-cd [app-name]
-```
-
-### 2. Install Dependencies
-
-Navigate to the project directory and install the required dependencies.
-
-```sh
 npm install
 ```
 
-### 3. Configure Environment Variables
+2. **Set up environment variables**
 
-Create a `.env` file in the root directory of the project and add your environment-specific variables. You can use the provided `.env.example` file as a reference.
+Create a `.env` file in the root directory and add the necessary environment variables:
 
-```sh
-cp .env.example .env
+```
+DATABASE_URL=your_database_url
+JWT_SECRET=your_jwt_secret
+EMAIL_API_KEY=your_email_api_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+FLUTTERWAVE_SECRET_KEY=your_flutterwave_secret_key
+LEMONSQUEEZY_SECRET_KEY=your_lemonsqueezy_secret_key
 ```
 
-Edit the `.env` file to match your environment configuration.
+## Configuration
 
-### 4. Compile TypeScript
+1. **Database Setup**
 
-Compile the TypeScript code to JavaScript.
+Make sure your database is set up and configured properly. Update the DATABASE_URL in your `.env` file with your database connection string.
 
-```sh
-npm run build
+2. **Run Migrations**
+
+Apply the database migrations to set up the necessary tables:
+
+```
+npx sequelize-cli db:migrate
+
 ```
 
-### 5. Run the Development Server
+## Usage
 
-Start the development server with the following command. This will also watch for any changes in your code and automatically restart the server.
+1. **Start the Development Server**
 
-```sh
+```
 npm run start:dev
+
 ```
 
-### 6. Run the Production Server
+This command will start the development server on http://localhost:3000 and watch for any changes in your code.
 
-To run the application in a production environment, use the following command:
+2. **Run the Production Server**
 
-```sh
+```
 npm run start
+
 ```
+This command will start the production server.
 
-### 7. Verify the Setup
+3. **Access the API Documentation**
 
-Open your browser and navigate to `http://localhost:3000/api/v1/` to verify that the application is running correctly.
+Visit the Swagger UI documentation to explore the available endpoints:
+
+[Swagger UI Documentation](https://app.swaggerhub.com/apis-docs/KALUIFEANYI00/hng-boilerplate_api_for_node_express/1.0.0)
+
+4. **View the Entity-Relationship Diagram (ERD)**
+
+To understand the database design and relationships, refer to the ERD:
+
+[Entity-Relationship Diagram (ERD)](https://miro.com/app/board/uXjVKyjiX4w=/?share_link_id=718798725053)
 
 ## Folder Structure
-
 Here's an overview of the project's folder structure:
 
 ```
 |--- src
 |    |--- controllers
-          |--- v1
 |    |--- database
 |    |--- interfaces
 |    |--- middlewares
 |    |--- routes
-|         |--- v1
 |    |--- services
 |    |--- utils
 |    |--- server.ts
@@ -227,10 +118,10 @@ Here's an overview of the project's folder structure:
 |--- .gitignore
 |--- package.json
 |--- tsconfig.json
+
 ```
 
 ## Scripts
-
 Here are some useful npm scripts that you can use during development and production:
 
 - `npm run build`: Compiles the TypeScript code to JavaScript.
@@ -239,18 +130,66 @@ Here are some useful npm scripts that you can use during development and product
 - `npm run test`: Runs the test suite (if available).
 - `npm run lint`: Runs the linter to check for code style issues.
 
-## Additional Resources
+## API Documentation
 
-- [Node.js Documentation](https://nodejs.org/en/docs/)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [Express Documentation](https://expressjs.com/)
+The API documentation provides detailed information about each endpoint, including request parameters, responses, and examples. You can access the Swagger UI documentation at the following link:
 
-By following these steps, you should have your Node.js and TypeScript application up and running. If you encounter any issues, please refer to the documentation of the respective tools or seek help from the community.
+[Swagger UI Documentation](https://app.swaggerhub.com/apis-docs/KALUIFEANYI00/hng-boilerplate_api_for_node_express/1.0.0)
 
-## API Endpoints
+## Database Design
+The database schema is designed to support the functionalities of the API. It includes tables for users, organisations, payments, and various other entities. The ERD provides a visual representation of the database structure.
 
-All API endpoints can be referenced in the [API Reference](API_REFERENCE.md) document.
+## Contributing
 
-## Versioning
+1. **Fork the repository**
+Fork this repository by clicking on the fork button on the top of this page. This will create a copy of this repository in your account.
 
-This project is versioned to ensure backward compatibility and easy maintenance. The current version is [version].
+2. **Clone the repository**
+```
+git clone https://github.com/your-username/boilerplate-repo.git
+cd boilerplate-repo
+
+```
+
+3. **Create a branch**
+```
+git switch -c your-new-branch-name
+
+```
+
+4. Make changes
+
+Make your changes to the codebase. Ensure your code follows the project's coding standards and guidelines
+
+5. **Run tests**
+
+Run the existing tests to ensure your changes do not break anything. If you added new functionality, write corresponding tests
+
+```
+npm run test
+
+```
+6. **Commit your changes**
+```
+git add .
+git commit -m "Description of your changes"
+```
+
+7. **Push your changes**
+```
+git push -u origin your-branch-name
+
+```
+
+8. **submit a pull request**
+
+Go to your repository on GitHub, open a pull request, and submit it for review.
+
+
+
+
+
+
+
+
+

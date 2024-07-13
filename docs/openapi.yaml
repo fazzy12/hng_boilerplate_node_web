@@ -1,0 +1,2503 @@
+openapi: 3.0.0
+info:
+  title: HNG Boilerplate API  For Node/express
+  description: This API provides user authentication, email messaging, and payment processing via Stripe, Flutterwave, and LemonSqueezy.
+  version: 1.0.0
+
+servers:
+  - url:  https://virtserver.swaggerhub.com/ifeanyikalu/api-v1.0/1.0.0
+    description: swaggerhub url
+
+paths:
+  /auth/login:
+    post:
+      summary: Login with email and password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Successful login
+        '401':
+          description: Unauthorized
+
+  /auth/social-login:
+    post:
+      summary: Social authentication login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                  enum: [google, facebook, twitter]
+                accessToken:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+        '401':
+          description: Unauthorized
+
+  /auth/magic-link:
+    post:
+      summary: Send magic link for authentication
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Magic link sent successfully
+        '400':
+          description: Bad request
+
+  /auth/magic-link/verify:
+    post:
+      summary: Verify magic link
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Magic link verified successfully
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+  /auth/change-password:
+    post:
+      summary: Change password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password changed successfully
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+  /auth/forgot-password:
+    post:
+      summary: Forgot password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset link sent successfully
+        '400':
+          description: Bad request
+
+  /auth/reset-password:
+    post:
+      summary: Reset password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+  /email/send:
+    post:
+      summary: Send an email using default templates
+      tags:
+        - Messaging
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  type: string
+                  format: email
+                subject:
+                  type: string
+                template:
+                  type: string
+                  enum: [welcome, reset-password, magic-link]
+                variables:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '200':
+          description: Email sent successfully
+        '400':
+          description: Bad request
+
+  /payments/stripe/checkout-session:
+    post:
+      summary: Create a Stripe checkout session
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                currency:
+                  type: string
+                successUrl:
+                  type: string
+                cancelUrl:
+                  type: string
+      responses:
+        '200':
+          description: Stripe checkout session created successfully
+        '400':
+          description: Bad request
+
+  /payments/flutterwave/charge:
+    post:
+      summary: Charge a payment using Flutterwave
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: float
+                currency:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                txRef:
+                  type: string
+                redirectUrl:
+                  type: string
+      responses:
+        '200':
+          description: Payment charged successfully
+        '400':
+          description: Bad request
+
+  /payments/lemonsqueezy/create-payment:
+    post:
+      summary: Create a payment using LemonSqueezy
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                currency:
+                  type: string
+                customerEmail:
+                  type: string
+                  format: email
+                productId:
+                  type: string
+      responses:
+        '200':
+          description: Payment created successfully
+        '400':
+          description: Bad request
+
+  paths:
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - Users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Bad request
+
+  /users/{id}:
+    get:
+      summary: Get a user by ID
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+    put:
+      summary: Update a user by ID
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete a user by ID
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /organisations:
+    get:
+      summary: Get all organisations
+      tags:
+        - Organisations
+      responses:
+        '200':
+          description: List of organisations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organisation'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create a new organisation
+      tags:
+        - Organisations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organisation'
+      responses:
+        '201':
+          description: Organisation created successfully
+        '400':
+          description: Bad request
+
+  /organisations/{id}:
+    get:
+      summary: Get an organisation by ID
+      tags:
+        - Organisations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Organisation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '404':
+          description: Organisation not found
+
+    put:
+      summary: Update an organisation by ID
+      tags:
+        - Organisations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organisation'
+      responses:
+        '200':
+          description: Organisation updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Organisation not found
+
+    delete:
+      summary: Delete an organisation by ID
+      tags:
+        - Organisations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Organisation deleted successfully
+        '404':
+          description: Organisation not found
+
+# super admin
+  /superadmin/users:
+    get:
+      summary: Get all users (Superadmin only)
+      tags:
+        - Superadmin
+      responses:
+        '200':
+          description: List of all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create a new user (Superadmin only)
+      tags:
+        - Superadmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Bad request
+
+  /superadmin/users/{id}:
+    get:
+      summary: Get a user by ID (Superadmin only)
+      tags:
+        - Superadmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+    put:
+      summary: Update a user by ID (Superadmin only)
+      tags:
+        - Superadmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete a user by ID (Superadmin only)
+      tags:
+        - Superadmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /superadmin/organisations:
+    get:
+      summary: Get all organisations (Superadmin only)
+      tags:
+        - Superadmin
+      responses:
+        '200':
+          description: List of all organisations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organisation'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create a new organisation (Superadmin only)
+      tags:
+        - Superadmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organisation'
+      responses:
+        '201':
+          description: Organisation created successfully
+        '400':
+          description: Bad request
+
+  /superadmin/organisations/{id}:
+    get:
+      summary: Get an organisation by ID (Superadmin only)
+      tags:
+        - Superadmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Organisation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '404':
+          description: Organisation not found
+
+    put:
+      summary: Update an organisation by ID (Superadmin only)
+      tags:
+        - Superadmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organisation'
+      responses:
+        '200':
+          description: Organisation updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Organisation not found
+
+    delete:
+      summary: Delete an organisation by ID (Superadmin only)
+      tags:
+        - Superadmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Organisation deleted successfully
+        '404':
+          description: Organisation not found
+
+  /superadmin/payments:
+    get:
+      summary: Get all payments (Superadmin only)
+      tags:
+        - Superadmin
+      responses:
+        '200':
+          description: List of all payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    amount:
+                      type: number
+                      format: float
+                    currency:
+                      type: string
+                    status:
+                      type: string
+        '401':
+          description: Unauthorized
+
+  /superadmin/activity-log:
+    get:
+      summary: Get activity log (Superadmin only)
+      tags:
+        - Superadmin
+      responses:
+        '200':
+          description: List of activity log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    userId:
+                      type: integer
+                    action:
+                      type: string
+                    details:
+                      type: string
+        '401':
+          description: Unauthorized
+
+# settings
+  /settings:
+    get:
+      summary: Get current settings
+      tags:
+        - Settings
+      responses:
+        '200':
+          description: Current settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update settings
+      tags:
+        - Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+      responses:
+        '200':
+          description: Settings updated successfully
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+# profile settings
+  /profile/settings:
+    get:
+      summary: Get profile settings
+      tags:
+        - Profile Settings
+      responses:
+        '200':
+          description: Profile settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSettings'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update profile settings
+      tags:
+        - Profile Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileSettings'
+      responses:
+        '200':
+          description: Profile settings updated successfully
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+# landing page:
+  /landing-page/terms-of-service:
+    get:
+      summary: Get terms of service content
+      tags:
+        - Landing Page
+      responses:
+        '200':
+          description: Terms of service content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermsOfService'
+        '500':
+          description: Internal server error
+
+  /landing-page/faqs:
+    get:
+      summary: Get frequently asked questions (FAQs)
+      tags:
+        - Landing Page
+      responses:
+        '200':
+          description: FAQs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FAQs'
+        '500':
+          description: Internal server error
+
+  /landing-page/contact-us:
+    get:
+      summary: Get contact us content
+      tags:
+        - Landing Page
+      responses:
+        '200':
+          description: Contact us content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactUs'
+        '500':
+          description: Internal server error
+
+  /landing-page/blog:
+    get:
+      summary: Get blog posts or news updates
+      tags:
+        - Landing Page
+      responses:
+        '200':
+          description: Blog posts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPosts'
+        '500':
+          description: Internal server error
+
+  /landing-page/subscribe:
+    post:
+      summary: Subscribe to the newsletter
+      tags:
+        - Landing Page
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscribe'
+      responses:
+        '200':
+          description: Subscription successful
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
+  /landing-page/testimonials:
+    get:
+      summary: Get customer testimonials
+      tags:
+        - Landing Page
+      responses:
+        '200':
+          description: Testimonials retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Testimonials'
+        '500':
+          description: Internal server error
+
+# gdrp cookies
+  /gdpr-cookies:
+    get:
+      summary: Get GDPR cookie consent status
+      tags:
+        - GDPR Cookies
+      responses:
+        '200':
+          description: GDPR cookie consent status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GDPRConsentStatus'
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Set GDPR cookie consent status
+      tags:
+        - GDPR Cookies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GDPRConsentUpdate'
+      responses:
+        '200':
+          description: GDPR cookie consent status updated successfully
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
+# dashboard
+
+  /dashboard:
+    get:
+      summary: Get dashboard overview
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Dashboard overview retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardOverview'
+        '500':
+          description: Internal server error
+
+  /dashboard/metrics:
+    get:
+      summary: Get dashboard metrics
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Dashboard metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetrics'
+        '500':
+          description: Internal server error
+
+  /dashboard/notifications:
+    get:
+      summary: Get dashboard notifications
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Dashboard notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardNotifications'
+        '500':
+          description: Internal server error
+
+  /waitlist:
+    get:
+      summary: Get waitlist status
+      tags:
+        - Waitlist
+      responses:
+        '200':
+          description: Waitlist status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Waitlist'
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Join waitlist
+      tags:
+        - Waitlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Waitlist'
+      responses:
+        '201':
+          description: Successfully added to the waitlist
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
+# marketing page
+
+  /marketing-page:
+    get:
+      summary: Get marketing page content
+      tags:
+        - Marketing
+      responses:
+        '200':
+          description: Marketing page content retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingPageOrSubscription'
+        '500':
+          description: Internal server error
+
+  /marketing-page/subscribe:
+    post:
+      summary: Subscribe to the marketing page newsletter
+      tags:
+        - Marketing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketingPageOrSubscription'
+      responses:
+        '201':
+          description: Subscription successful
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
+#invite
+  /invite:
+    post:
+      summary: Send an invitation
+      tags:
+        - Invite Flow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invite'
+      responses:
+        '201':
+          description: Invitation sent successfully
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
+  /invite/{inviteId}/status:
+    get:
+      summary: Get invitation status
+      tags:
+        - Invite Flow
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier for the invitation.
+      responses:
+        '200':
+          description: Invitation status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteStatus'
+        '404':
+          description: Invitation not found
+        '500':
+          description: Internal server error
+
+
+# export user data
+  /users/export:
+    get:
+      summary: Export user data
+      tags:
+        - User Data Export
+      parameters:
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [csv, json, xml]
+            description: The format in which to export the user data. Default is 'csv'.
+      responses:
+        '200':
+          description: User data exported successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                description: The user data file in the requested format.
+        '400':
+          description: Bad request, invalid format specified
+        '500':
+          description: Internal server error
+
+  /users/{userId}/random-data:
+    get:
+      summary: Get random data associated with a user
+      tags:
+        - Random Data
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user.
+      responses:
+        '200':
+          description: Random data associated with the user retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RandomData'
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /dashboard/random-data:
+    get:
+      summary: List random data on the dashboard
+      tags:
+        - Random Data
+      responses:
+        '200':
+          description: List of random data on the dashboard retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RandomData'
+        '500':
+          description: Internal server error
+
+#
+  /users/{userId}/random-data/{dataId}:
+    get:
+      summary: Get a single random data entry associated with a user
+      tags:
+        - Random Data
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user.
+        - name: dataId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the random data entry.
+      responses:
+        '200':
+          description: Single random data entry retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RandomData'
+        '404':
+          description: User or random data entry not found
+        '500':
+          description: Internal server error
+
+# random serach
+  /other-data:
+    get:
+      summary: List other data with search and sorting
+      tags:
+        - Other Data
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search query to filter the data.
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order, either 'asc' for ascending or 'desc' for descending.
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The field to sort by, e.g., 'createdAt', 'name'.
+      responses:
+        '200':
+          description: List of other data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OtherData'
+        '400':
+          description: Bad request if any query parameter is invalid
+        '500':
+          description: Internal server error
+
+# #####
+  /charts/data:
+    get:
+      summary: Get chart data
+      tags:
+        - Charts
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [bar, line, pie]
+          description: The type of chart to retrieve.
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: The start date for the data range.
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: The end date for the data range.
+      responses:
+        '200':
+          description: Chart data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartData'
+        '400':
+          description: Bad request if any query parameter is invalid
+        '500':
+          description: Internal server error
+
+# blog
+  /blogs:
+    get:
+      summary: List all blog posts
+      tags:
+        - Blog
+      responses:
+        '200':
+          description: List of blog posts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPost'
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new blog post
+      tags:
+        - Blog
+      requestBody:
+        description: The blog post data to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogPostCreate'
+      responses:
+        '201':
+          description: Blog post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+        '400':
+          description: Bad request if the blog post data is invalid
+        '500':
+          description: Internal server error
+
+  /blogs/{blogId}:
+    get:
+      summary: Get a blog post by ID
+      tags:
+        - Blog
+      parameters:
+        - name: blogId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the blog post.
+      responses:
+        '200':
+          description: Blog post retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+        '404':
+          description: Blog post not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update a blog post by ID
+      tags:
+        - Blog
+      parameters:
+        - name: blogId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the blog post.
+      requestBody:
+        description: The blog post data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogPostUpdate'
+      responses:
+        '200':
+          description: Blog post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+        '400':
+          description: Bad request if the blog post data is invalid
+        '404':
+          description: Blog post not found
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete a blog post by ID
+      tags:
+        - Blog
+      parameters:
+        - name: blogId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the blog post.
+      responses:
+        '204':
+          description: Blog post deleted successfully
+        '404':
+          description: Blog post not found
+        '500':
+          description: Internal server error
+
+# language
+  /languages:
+    get:
+      summary: List all languages
+      tags:
+        - Language and Region
+      responses:
+        '200':
+          description: List of languages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Language'
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new language
+      tags:
+        - Language and Region
+      requestBody:
+        description: The language data to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LanguageCreate'
+      responses:
+        '201':
+          description: Language created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Language'
+        '400':
+          description: Bad request if the language data is invalid
+        '500':
+          description: Internal server error
+
+  /languages/{languageId}:
+    get:
+      summary: Get a language by ID
+      tags:
+        - Language and Region
+      parameters:
+        - name: languageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the language.
+      responses:
+        '200':
+          description: Language retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Language'
+        '404':
+          description: Language not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update a language by ID
+      tags:
+        - Language and Region
+      parameters:
+        - name: languageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the language.
+      requestBody:
+        description: The language data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LanguageUpdate'
+      responses:
+        '200':
+          description: Language updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Language'
+        '400':
+          description: Bad request if the language data is invalid
+        '404':
+          description: Language not found
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete a language by ID
+      tags:
+        - Language and Region
+      parameters:
+        - name: languageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the language.
+      responses:
+        '204':
+          description: Language deleted successfully
+        '404':
+          description: Language not found
+        '500':
+          description: Internal server error
+
+  /regions:
+    get:
+      summary: List all regions
+      tags:
+        - Language and Region
+      responses:
+        '200':
+          description: List of regions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Region'
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new region
+      tags:
+        - Language and Region
+      requestBody:
+        description: The region data to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegionCreate'
+      responses:
+        '201':
+          description: Region created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+        '400':
+          description: Bad request if the region data is invalid
+        '500':
+          description: Internal server error
+
+  /regions/{regionId}:
+    get:
+      summary: Get a region by ID
+      tags:
+        - Language and Region
+      parameters:
+        - name: regionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the region.
+      responses:
+        '200':
+          description: Region retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+        '404':
+          description: Region not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update a region by ID
+      tags:
+        - Language and Region
+      parameters:
+        - name: regionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the region.
+      requestBody:
+        description: The region data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegionUpdate'
+      responses:
+        '200':
+          description: Region updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+        '400':
+          description: Bad request if the region data is invalid
+        '404':
+          description: Region not found
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete a region by ID
+      tags:
+        - Language and Region
+      parameters:
+        - name: regionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the region.
+      responses:
+        '204':
+          description: Region deleted successfully
+        '404':
+          description: Region not found
+        '500':
+          description: Internal server error
+
+# email template namagement
+  /superadmin/email-templates:
+    get:
+      summary: List all email templates
+      tags:
+        - Superadmin: Email Template Management
+      responses:
+        '200':
+          description: List of email templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailTemplate'
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new email template
+      tags:
+        - Superadmin: Email Template Management
+      requestBody:
+        description: The email template data to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTemplateCreate'
+      responses:
+        '201':
+          description: Email template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailTemplate'
+        '400':
+          description: Bad request if the email template data is invalid
+        '500':
+          description: Internal server error
+
+  /superadmin/email-templates/{templateId}:
+    get:
+      summary: Get an email template by ID
+      tags:
+        - Superadmin: Email Template Management
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the email template.
+      responses:
+        '200':
+          description: Email template retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailTemplate'
+        '404':
+          description: Email template not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update an email template by ID
+      tags:
+        - Superadmin: Email Template Management
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the email template.
+      requestBody:
+        description: The email template data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTemplateUpdate'
+      responses:
+        '200':
+          description: Email template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailTemplate'
+        '400':
+          description: Bad request if the email template data is invalid
+        '404':
+          description: Email template not found
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete an email template by ID
+      tags:
+        - Superadmin: Email Template Management
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the email template.
+      responses:
+        '204':
+          description: Email template deleted successfully
+        '404':
+          description: Email template not found
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        website:
+          type: string
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+        status:
+          type: string
+
+    ActivityLog:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        userId:
+          type: integer
+        action:
+          type: string
+        details:
+          type: string
+
+    Settings:
+      type: object
+      properties:
+        id:
+          type: integer
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+        language:
+          type: string
+        notificationEnabled:
+          type: boolean
+        timeZone:
+          type: string
+        otherSettings:
+          type: object
+          additionalProperties: true
+
+    ProfileSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        avatarUrl:
+          type: string
+          format: uri
+        bio:
+          type: string
+        website:
+          type: string
+          format: uri
+        socialLinks:
+          type: object
+          properties:
+            twitter:
+              type: string
+              format: uri
+            linkedin:
+              type: string
+              format: uri
+            facebook:
+              type: string
+              format: uri
+          additionalProperties: false
+        otherSettings:
+          type: object
+          additionalProperties: true
+
+    LandingPageContent:
+      type: object
+      properties:
+        termsOfService:
+          type: object
+          properties:
+            title:
+              type: string
+            content:
+              type: string
+        faqs:
+          type: object
+          properties:
+            faqs:
+              type: array
+              items:
+                type: object
+                properties:
+                  question:
+                    type: string
+                  answer:
+                    type: string
+        contactUs:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            phone:
+              type: string
+            address:
+              type: string
+        blogPosts:
+          type: object
+          properties:
+            posts:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  summary:
+                    type: string
+                  publishDate:
+                    type: string
+                    format: date-time
+                  url:
+                    type: string
+                    format: uri
+        subscribe:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+        testimonials:
+          type: object
+          properties:
+            testimonials:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  testimonial:
+                    type: string
+                  date:
+                    type: string
+                    format: date
+
+    GDPRConsentStatus:
+      type: object
+      properties:
+        consentGiven:
+          type: boolean
+          description: Indicates whether the user has given consent for cookies. If true, consent has been given; if false, consent has not been given.
+        consentDate:
+          type: string
+          format: date-time
+          description: Date and time when consent was given.
+      required:
+        - consentGiven
+
+    Dashboard:
+      type: object
+      properties:
+        overview:
+          type: object
+          properties:
+            totalUsers:
+              type: integer
+              description: Total number of users in the system.
+            activeUsers:
+              type: integer
+              description: Number of active users.
+            totalRevenue:
+              type: number
+              format: float
+              description: Total revenue generated.
+            recentActivities:
+              type: array
+              items:
+                type: object
+                properties:
+                  activityType:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  details:
+                    type: string
+          required:
+            - totalUsers
+            - activeUsers
+            - totalRevenue
+
+        metrics:
+          type: object
+          properties:
+            userGrowth:
+              type: object
+              properties:
+                currentMonth:
+                  type: integer
+                  description: Number of new users this month.
+                lastMonth:
+                  type: integer
+                  description: Number of new users last month.
+            revenueTrends:
+              type: object
+              properties:
+                currentMonth:
+                  type: number
+                  format: float
+                  description: Revenue for the current month.
+                lastMonth:
+                  type: number
+                  format: float
+                  description: Revenue for the last month.
+            systemHealth:
+              type: object
+              properties:
+                uptime:
+                  type: string
+                  description: System uptime percentage.
+                errors:
+                  type: integer
+                  description: Number of system errors.
+          required:
+            - userGrowth
+            - revenueTrends
+            - systemHealth
+
+        notifications:
+          type: object
+          properties:
+            notifications:
+              type: array
+              items:
+                type: object
+                properties:
+                  notificationType:
+                    type: string
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+          required:
+            - notifications
+
+    Waitlist:
+      type: object
+      oneOf:
+        - properties:
+            status:
+              type: string
+              description: The current status of the waitlist (e.g., "open", "closed").
+            estimatedWaitTime:
+              type: string
+              description: Estimated wait time for the next available slot (if applicable).
+          required:
+            - status
+          description: Status of the waitlist
+        - properties:
+            email:
+              type: string
+              format: email
+              description: The email address of the person joining the waitlist.
+            name:
+              type: string
+              description: The name of the person joining the waitlist.
+          required:
+            - email
+            - name
+          description: Entry for joining the waitlist
+
+    MarketingPageOrSubscription:
+      type: object
+      oneOf:
+        - properties:
+            title:
+              type: string
+              description: Title of the marketing page.
+            content:
+              type: string
+              description: Main content or message of the marketing page.
+            callToAction:
+              type: string
+              description: Call-to-action message or button text.
+            imageUrl:
+              type: string
+              format: uri
+              description: URL to an image displayed on the marketing page.
+          required:
+            - title
+            - content
+            - callToAction
+          description: Schema for the marketing page content.
+        - properties:
+            email:
+              type: string
+              format: email
+              description: Email address of the subscriber.
+            name:
+              type: string
+              description: Name of the subscriber.
+          required:
+            - email
+            - name
+          description: Schema for a subscription request.
+
+    InviteOrStatus:
+      type: object
+      oneOf:
+        - properties:
+            email:
+              type: string
+              format: email
+              description: Email address of the invitee.
+            role:
+              type: string
+              description: Role assigned to the invitee.
+          required:
+            - email
+            - role
+          description: Schema for sending an invitation.
+        - properties:
+            inviteId:
+              type: string
+              description: Unique identifier for the invitation.
+            email:
+              type: string
+              format: email
+              description: Email address of the invitee.
+            role:
+              type: string
+              description: Role assigned to the invitee.
+            status:
+              type: string
+              description: Current status of the invitation (e.g., "pending", "accepted", "declined").
+            createdAt:
+              type: string
+              format: date-time
+              description: Date and time when the invitation was created.
+            updatedAt:
+              type: string
+              format: date-time
+              description: Date and time when the invitation status was last updated.
+          required:
+            - inviteId
+            - email
+            - role
+            - status
+          description: Schema for retrieving the status of an invitation.
+
+    ExportFormat:
+      type: string
+      enum: [csv, json, xml]
+      description: Format in which the user data can be exported.
+
+    RandomData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the random data entry.
+        userId:
+          type: string
+          description: Unique identifier of the user associated with this data.
+        data:
+          type: string
+          description: Random data associated with the user.
+        widget:
+          type: string
+          description: Widget type or category in the system.
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the random data was created.
+      required:
+        - id
+        - userId
+        - data
+        - widget
+        - createdAt
+
+    OtherData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the other data entry.
+        name:
+          type: string
+          description: Name of the data entry.
+        description:
+          type: string
+          description: Description of the data entry.
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the data entry was created.
+      required:
+        - id
+        - name
+        - description
+        - createdAt
+
+    ChartData:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of chart (bar, line, pie).
+        labels:
+          type: array
+          items:
+            type: string
+          description: The labels for the chart data.
+        datasets:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                description: The label for the dataset.
+              data:
+                type: array
+                items:
+                  type: number
+                description: The data points for the dataset.
+              backgroundColor:
+                type: string
+                description: The background color for the dataset.
+              borderColor:
+                type: string
+                description: The border color for the dataset.
+              borderWidth:
+                type: number
+                description: The border width for the dataset.
+      required:
+        - type
+        - labels
+        - datasets
+
+    Blog:
+      type: object
+      properties:
+        BlogPost:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the blog post.
+            title:
+              type: string
+              description: Title of the blog post.
+            content:
+              type: string
+              description: Content of the blog post.
+            author:
+              type: string
+              description: Author of the blog post.
+            createdAt:
+              type: string
+              format: date-time
+              description: Date and time when the blog post was created.
+            updatedAt:
+              type: string
+              format: date-time
+              description: Date and time when the blog post was last updated.
+          required:
+            - id
+            - title
+            - content
+            - author
+            - createdAt
+            - updatedAt
+
+        BlogPostCreate:
+          type: object
+          properties:
+            title:
+              type: string
+              description: Title of the blog post.
+            content:
+              type: string
+              description: Content of the blog post.
+            author:
+              type: string
+              description: Author of the blog post.
+          required:
+            - title
+            - content
+            - author
+
+        BlogPostUpdate:
+          type: object
+          properties:
+            title:
+              type: string
+              description: Title of the blog post.
+            content:
+              type: string
+              description: Content of the blog post.
+          required:
+            - title
+            - content
+
+    LanguageAndRegion:
+      type: object
+      properties:
+        Language:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the language.
+            name:
+              type: string
+              description: Name of the language.
+            code:
+              type: string
+              description: Language code (e.g., 'en' for English).
+            createdAt:
+              type: string
+              format: date-time
+              description: Date and time when the language was created.
+            updatedAt:
+              type: string
+              format: date-time
+              description: Date and time when the language was last updated.
+          required:
+            - id
+            - name
+            - code
+            - createdAt
+            - updatedAt
+
+        LanguageCreate:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the language.
+            code:
+              type: string
+              description: Language code (e.g., 'en' for English).
+          required:
+            - name
+            - code
+
+        LanguageUpdate:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the language.
+            code:
+              type: string
+              description: Language code (e.g., 'en' for English).
+          required:
+            - name
+            - code
+
+        Region:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the region.
+            name:
+              type: string
+              description: Name of the region.
+            code:
+              type: string
+              description: Region code (e.g., 'NA' for North America).
+            createdAt:
+              type: string
+              format: date-time
+              description: Date and time when the region was created.
+            updatedAt:
+              type: string
+              format: date-time
+              description: Date and time when the region was last updated.
+          required:
+            - id
+            - name
+            - code
+            - createdAt
+            - updatedAt
+
+        RegionCreate:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the region.
+            code:
+              type: string
+              description: Region code (e.g., 'NA' for North America).
+          required:
+            - name
+            - code
+
+        RegionUpdate:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the region.
+            code:
+              type: string
+              description: Region code (e.g., 'NA' for North America).
+          required:
+            - name
+            - code
+
+    SuperadminEmailTemplate:
+      type: object
+      properties:
+        EmailTemplate:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the email template.
+            name:
+              type: string
+              description: Name of the email template.
+            subject:
+              type: string
+              description: Subject line of the email template.
+            body:
+              type: string
+              description: HTML body content of the email template.
+            createdAt:
+              type: string
+              format: date-time
+              description: Date and time when the email template was created.
+            updatedAt:
+              type: string
+              format: date-time
+              description: Date and time when the email template was last updated.
+          required:
+            - id
+            - name
+            - subject
+            - body
+            - createdAt
+            - updatedAt
+
+        EmailTemplateCreate:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the email template.
+            subject:
+              type: string
+              description: Subject line of the email template.
+            body:
+              type: string
+              description: HTML body content of the email template.
+          required:
+            - name
+            - subject
+            - body
+
+        EmailTemplateUpdate:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the email template.
+            subject:
+              type: string
+              description: Subject line of the email template.
+            body:
+              type: string
+              description: HTML body content of the email template.
+          required:
+            - name
+            - subject
+            - body
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Authentication
+    description: Endpoints for user authentication
+  - name: Messaging
+    description: Endpoints for email messaging
+  - name: Payments
+    description: Endpoints for payment processing
+  - name: Users
+    description: Operations related to users, including retrieval, creation, updating, and deletion.
+  - name: Organisations
+    description: Operations related to organisations, including retrieval, creation, updating, and deletion.
+  - name: Superadmin
+    description: Operations available to the Superadmin role, including management of users, organisations, payments, and viewing the activity log.
+  - name: Settings
+    description: Operations related to managing and updating application settings.
+  - name: Profile Settings
+    description: Operations related to managing and updating user profile settings.
+  - name: Landing Page
+    description: Operations related to the content and management of the landing page, including sections like privacy policy, about us, FAQs, blog posts, contact information, and more.
+  - name: GDPR Cookies
+    description: Endpoints related to managing GDPR cookie consent status.
+  - name: Dashboard
+    description: Endpoints related to retrieving and managing dashboard data, including overview, metrics, and notifications.
+  - name: Waitlist
+    description: Endpoints related to managing the waitlist, including checking status and joining the waitlist.
+  - name: Marketing
+    description: Endpoints related to marketing activities, including retrieving marketing page content and handling newsletter subscriptions.
+  - name: Invite Flow
+    description: Endpoints related to managing invitation processes, including sending invitations and checking invitation statuses.
+  - name: User Data Export
+    description: Endpoints related to exporting user data in different formats.
+  - name: Random Data
+    description: Endpoints related to managing random data associated with users and listing it on the dashboard.
+  - name: Other Data
+    description: Endpoints related to managing and listing other data with search and sorting functionalities.
+  - name: Charts
+    description: Endpoints related to retrieving chart data.
+  - name: Blog
+    description: Endpoints related to managing blog posts.
+  - name: Language and Region
+    description: Endpoints related to managing languages and regions.
+  - name: Email Template Management
+    description: Endpoints related to managing email templates in the Superadmin interface.

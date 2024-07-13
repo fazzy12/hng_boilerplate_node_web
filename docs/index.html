@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HNG Boilerplate API Documentation</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css">
+</head>
+<body>
+  <a href="/api-docs/swagger-ui/">Swagger UI Documentation</a>
+
+  <div id="ui-wrapper-new"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+  <script>
+    var swaggerUIOptions = {
+      url: "./openapi.yaml",
+      dom_id: '#ui-wrapper-new',
+      docExpansion: 'list',
+      deepLinking: true,
+      filter: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+    }
+
+    var ui = SwaggerUIBundle(swaggerUIOptions);
+    window.ui = ui;
+  </script>
+</body>
+</html>
